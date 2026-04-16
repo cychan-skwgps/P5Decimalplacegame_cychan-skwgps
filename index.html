@@ -231,7 +231,7 @@
                 <h1 class="text-5xl font-black text-slate-800 tracking-tight">小數點挑戰賽</h1>
                 <p class="text-slate-500 font-medium">✨ 視覺強化與動態特效版</p>
                 <div class="inline-block bg-indigo-50 px-6 py-2 rounded-2xl text-base font-bold text-indigo-600 mt-6 shadow-sm">
-                    製作人：陳俊諺 老師
+                    製作人：陳俊諺老師
                 </div>
             </div>
             
@@ -487,7 +487,7 @@
                 if (el) el.classList.add('wrong-dot');
                 const target = document.getElementById(`pos-${currentProblem.correctPos}`);
                 if (target) target.classList.add('correct-dot');
-                feedback.innerText = `💡 應有 ${currentProblem.correctPos} 位小數`;
+                feedback.innerText = `💡 應是 ${currentProblem.correctPos} 位小數`;
                 feedback.className = "wrong animate__animated animate__shakeX locked";
                 if (gameMode === 'timed') document.getElementById('combo-display').innerText = "";
             }
