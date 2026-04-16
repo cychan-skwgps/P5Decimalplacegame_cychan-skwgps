@@ -24,7 +24,6 @@
             transition: background 0.5s ease;
         }
 
-        /* 連擊時的背景特效 */
         body.combo-active {
             background: radial-gradient(circle at center, #eef2ff 0%, #e0e7ff 100%);
         }
@@ -43,7 +42,6 @@
             font-size: 3.5rem;
             color: #1e293b;
             gap: 0.25rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
         }
 
         .math-row {
@@ -60,7 +58,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: transform 0.2s;
         }
 
         .static-dot {
@@ -82,41 +79,21 @@
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            padding-bottom: 0.5rem;
         }
 
         .dot-trigger::after {
             content: '';
             width: 10px;
             height: 10px;
-            background: #e2e8f0;
+            background: #cbd5e1;
             border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0;
-            transform: scale(0.5);
+            transition: all 0.2s;
         }
 
-        .dot-trigger:hover::after { 
-            opacity: 1; 
-            background: #cbd5e1; 
-            transform: scale(1.2);
-        }
-
-        .correct-dot::after { 
-            opacity: 1 !important; 
-            background: var(--success) !important; 
-            transform: scale(2.2) !important; 
-            box-shadow: 0 0 15px var(--success); 
-        }
-
-        .wrong-dot::after { 
-            opacity: 1 !important; 
-            background: var(--error) !important; 
-            transform: scale(2.2) !important; 
-            box-shadow: 0 0 15px var(--error);
-        }
-
-        .zero-pad { color: #cbd5e1; font-style: italic; opacity: 0.6; }
+        .dot-trigger:hover::after { opacity: 1; transform: scale(1.2); }
+        .correct-dot::after { opacity: 1 !important; background: var(--success) !important; transform: scale(2.2) !important; box-shadow: 0 0 15px var(--success); }
+        .wrong-dot::after { opacity: 1 !important; background: var(--error) !important; transform: scale(2.2) !important; box-shadow: 0 0 15px var(--error); }
 
         .math-line {
             width: 115%;
@@ -126,145 +103,127 @@
             border-radius: 10px;
         }
 
-        .operator {
-            position: absolute;
-            left: -3.5rem;
-            color: #94a3b8;
-            font-size: 2.5rem;
-        }
+        .operator { position: absolute; left: -3.5rem; color: #94a3b8; font-size: 2.5rem; }
 
         .timer-progress {
             height: 100%;
             background: linear-gradient(to right, #6366f1, #a855f7);
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
             transition: width 0.1s linear;
         }
 
-        .ai-glow { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.3); }
-
-        /* 答對時的震動 */
-        @keyframes successPop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        /* 改強的回饋文字 */
+        #feedback.correct {
+            color: #059669;
+            font-size: 3.5rem;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            font-weight: 900;
         }
-        .success-animate { animation: successPop 0.4s ease; }
 
-        /* 答錯時的抖動 */
-        @keyframes shakeError {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
+        #feedback.wrong {
+            color: #dc2626;
+            font-size: 2.5rem;
+            font-weight: 800;
         }
-        .error-shake { animation: shakeError 0.4s ease-in-out; }
+
+        /* 排行榜表格樣式 */
+        .rank-row { border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+        .rank-row:hover { background: #f8fafc; }
+        .rank-1 { color: #f59e0b; font-weight: 900; }
+
+        #name-input-container {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.9);
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div id="main-card" class="glass-card rounded-[3rem] p-10 w-full max-w-xl relative overflow-hidden transition-all duration-300">
+    <div id="main-card" class="glass-card rounded-[3rem] p-10 w-full max-w-xl relative overflow-hidden">
         
         <div id="game-timer-container" class="hidden absolute top-0 left-0 w-full h-3 bg-slate-100">
             <div id="game-timer-fill" class="timer-progress w-full"></div>
         </div>
 
-        <!-- 開始畫面 -->
         <div id="start-screen" class="text-center space-y-8 py-6">
             <div class="space-y-3">
-                <div class="inline-block bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-sm font-bold animate__animated animate__fadeInDown">小學五年級專屬</div>
-                <h1 class="text-5xl font-black text-slate-800 tracking-tight leading-tight">小數點挑戰賽</h1>
-                <p class="text-slate-500 font-medium">✨ 視覺強化版 • 讓數學更有趣</p>
-                <div class="inline-block bg-white border border-indigo-200 px-6 py-2 rounded-2xl text-base font-bold text-indigo-600 mt-6 shadow-sm">
-                    製作人：陳俊諺 老師
+                <h1 class="text-5xl font-black text-slate-800 tracking-tight">小數點挑戰賽</h1>
+                <p class="text-slate-500 font-medium">✨ 視覺強化與排行榜系統</p>
+                <div class="inline-block bg-indigo-50 px-6 py-2 rounded-2xl text-base font-bold text-indigo-600 mt-6 shadow-sm">
+                    製作人：陳俊諺老師
                 </div>
             </div>
             
             <div class="grid grid-cols-1 gap-5 pt-4">
-                <button onclick="startGame('normal', 5)" class="group relative flex items-center justify-between bg-white border-2 border-slate-200 p-6 rounded-3xl hover:border-indigo-500 hover:bg-indigo-50 transition-all transform hover:-translate-y-1">
-                    <div class="text-left">
-                        <span class="block text-indigo-700 font-bold text-xl">標準練習</span>
-                        <span class="text-slate-400 text-sm">精確完成 5 道練習題</span>
-                    </div>
-                    <div class="bg-indigo-100 p-3 rounded-2xl group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                        <span class="text-2xl">🎯</span>
-                    </div>
+                <button onclick="startGame('normal', 5)" class="group flex items-center justify-between bg-white border-2 border-slate-200 p-6 rounded-3xl hover:border-indigo-500 transition-all">
+                    <div class="text-left"><span class="block text-indigo-700 font-bold text-xl">標準練習</span><span class="text-slate-400 text-sm">完成 5 題</span></div>
+                    <span class="text-2xl">🎯</span>
                 </button>
-                <button onclick="startGame('timed', 60)" class="group relative flex items-center justify-between bg-indigo-600 p-6 rounded-3xl hover:bg-indigo-700 transition-all transform hover:-translate-y-1 shadow-xl shadow-indigo-200">
-                    <div class="text-left text-white">
-                        <span class="block font-bold text-xl">限時 1 分鐘</span>
-                        <span class="text-indigo-100 text-sm">追求最高連擊 (Combo)</span>
-                    </div>
-                    <div class="bg-white/20 p-3 rounded-2xl group-hover:bg-white group-hover:text-indigo-600 transition-colors">
-                        <span class="text-2xl">⚡</span>
-                    </div>
+                <button onclick="startGame('timed', 60)" class="group flex items-center justify-between bg-indigo-600 p-6 rounded-3xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200">
+                    <div class="text-left text-white"><span class="block font-bold text-xl">限時1分鐘挑戰</span><span class="text-indigo-100 text-sm">爭奪排行榜名次</span></div>
+                    <span class="text-2xl text-white">🏆</span>
                 </button>
             </div>
         </div>
 
-        <!-- 遊戲畫面 -->
         <div id="game-screen" class="hidden space-y-8 animate__animated animate__fadeIn">
             <div class="flex justify-between items-end">
-                <div class="relative">
+                <div>
                     <p id="mode-label" class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1">MODE</p>
-                    <div id="round-container" class="flex items-baseline gap-3">
+                    <div class="flex items-baseline gap-3">
                         <p id="round-info" class="text-4xl font-black text-slate-800">1 / 5</p>
                         <p id="combo-display" class="text-2xl font-black text-amber-500 hidden"></p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p id="score-label" class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Time Left</p>
+                    <p id="score-label" class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
                     <p id="time-display" class="font-mono text-3xl font-black text-indigo-600">60.0s</p>
                 </div>
             </div>
 
-            <div id="math-area" class="bg-slate-50 rounded-[2.5rem] p-12 border border-slate-200 flex justify-center items-center min-h-[400px] relative transition-all duration-300">
-                <!-- 直式生成區域 -->
-            </div>
+            <div id="math-area" class="bg-slate-50 rounded-[2.5rem] p-12 border border-slate-200 flex justify-center items-center min-h-[400px]">
+                </div>
 
-            <div class="space-y-4">
-                <button id="no-dot-btn" onclick="handleDotClick(null, 0)" class="w-full py-5 bg-white text-slate-600 font-bold rounded-3xl border-2 border-slate-200 hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm">
+            <div class="space-y-4 text-center">
+                <div class="min-h-[100px] flex items-center justify-center">
+                    <span id="feedback" class="animate__animated"></span>
+                </div>
+                <button id="no-dot-btn" onclick="handleDotClick(null, 0)" class="w-full py-5 bg-white text-slate-600 font-bold rounded-3xl border-2 border-slate-200 hover:border-indigo-400 transition-all">
                     結果為整數 (不需點小數點)
                 </button>
-                <div class="flex items-center justify-center min-h-[30px]">
-                    <span id="feedback" class="text-center font-black tracking-wide text-lg"></span>
-                </div>
             </div>
         </div>
 
-        <!-- 結果畫面 -->
-        <div id="result-screen" class="hidden text-center space-y-6 animate__animated animate__zoomIn">
-            <div id="result-emoji" class="text-8xl">🎊</div>
-            <h3 class="text-4xl font-black text-slate-800">挑戰成果</h3>
+        <div id="result-screen" class="hidden text-center space-y-6">
+            <h3 class="text-4xl font-black text-slate-800">挑戰結果</h3>
             
-            <div class="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 grid grid-cols-2 gap-6 shadow-sm">
-                <div>
-                    <p class="text-sm font-bold text-indigo-400 uppercase mb-1">總得分</p>
-                    <p id="final-score" class="text-5xl font-black text-slate-800">0</p>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-indigo-400 uppercase mb-1">最高連擊</p>
-                    <p id="final-combo" class="text-5xl font-black text-slate-800">0</p>
-                </div>
+            <div class="bg-white p-6 rounded-[2.5rem] border-2 border-slate-100 grid grid-cols-2 gap-4">
+                <div><p class="text-xs font-bold text-indigo-400">總得分</p><p id="final-score" class="text-4xl font-black text-slate-800">0</p></div>
+                <div><p class="text-xs font-bold text-indigo-400">最高連擊</p><p id="final-combo" class="text-4xl font-black text-slate-800">0</p></div>
             </div>
 
-            <!-- AI 智慧分析區 -->
-            <div id="ai-analysis-box" class="ai-glow bg-violet-50 p-7 rounded-[2.5rem] text-left relative overflow-hidden">
-                <h4 class="text-sm font-bold text-violet-600 mb-3 flex items-center gap-2">
-                    <span class="bg-violet-200 p-1.5 rounded-lg text-xs">✨</span> Gemini 智慧建議
+            <div id="leaderboard-box" class="bg-slate-50 rounded-[2.5rem] p-6 text-left border border-slate-200">
+                <h4 class="text-center font-black text-slate-700 mb-4 flex items-center justify-center gap-2">
+                    🏆 限時模式榮譽榜
                 </h4>
-                <div id="ai-loading" class="text-violet-400 text-sm font-medium">
-                    正在運算分析中<span class="loading-dots"></span>
-                </div>
-                <p id="ai-text" class="text-slate-700 text-base leading-relaxed font-medium"></p>
-                <button id="ai-tts-btn" onclick="speakAI()" class="hidden mt-4 text-xs bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center gap-2">
-                    🔊 聽聽 AI 老師的點評 (廣東話)
-                </button>
+                <div id="leaderboard-list" class="space-y-2 text-sm">
+                    </div>
             </div>
 
-            <div class="flex flex-col gap-4 pt-4">
-                <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-bold py-5 rounded-3xl hover:bg-slate-800 transition-all shadow-xl">重新挑戰</button>
-                <p class="text-sm font-bold text-slate-400">
-                    製作人：陳俊諺 老師
-                </p>
+            <div id="ai-analysis-box" class="bg-violet-50 p-6 rounded-[2.5rem] text-left">
+                <p id="ai-text" class="text-slate-700 text-sm font-medium leading-relaxed"></p>
+                <button id="ai-tts-btn" onclick="speakAI()" class="hidden mt-3 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-bold">🔊 AI 老師評點</button>
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-bold py-5 rounded-3xl hover:bg-slate-800">重新挑戰</button>
+        </div>
+
+        <div id="name-input-container" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center p-8 text-center">
+            <div class="bg-white p-8 rounded-[3rem] shadow-2xl border-2 border-indigo-500 space-y-6 w-full animate__animated animate__zoomIn">
+                <h2 class="text-3xl font-black text-slate-800">新紀錄！</h2>
+                <p class="text-slate-500">請輸入你的名字記錄在榮譽榜：</p>
+                <input type="text" id="player-name" placeholder="例如：5A 陳小明" maxlength="10" 
+                       class="w-full text-center p-4 border-2 border-slate-200 rounded-2xl text-xl font-bold focus:border-indigo-500 focus:outline-none">
+                <button onclick="saveAndShowLeaderboard()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 transition-all">送出成績</button>
             </div>
         </div>
     </div>
@@ -274,15 +233,48 @@
         let gameMode = 'normal', timeLeft = 60, score = 0, totalAnswered = 0, roundCount = 0, maxRounds = 5;
         let combo = 0, maxCombo = 0;
         let currentProblem = null, timerInterval = null, gameActive = false;
-        let history = []; 
+        let history = [];
+
+        // 初始化與讀取排行榜
+        function getLeaderboard() {
+            return JSON.parse(localStorage.getItem('decimal_leaderboard')) || [];
+        }
+
+        function saveAndShowLeaderboard() {
+            const name = document.getElementById('player-name').value.trim() || "無名英雄";
+            let leaderboard = getLeaderboard();
+            leaderboard.push({ name: name, score: score, combo: maxCombo, date: new Date().toLocaleDateString() });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 5); // 只留前五名
+            localStorage.setItem('decimal_leaderboard', JSON.stringify(leaderboard));
+            
+            document.getElementById('name-input-container').classList.add('hidden');
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            const data = getLeaderboard();
+            if (data.length === 0) {
+                list.innerHTML = "<p class='text-center text-slate-400'>尚無紀錄</p>";
+                return;
+            }
+            let html = `<table class="w-full text-left">
+                <tr class="text-slate-400 text-xs"><th>名次</th><th>玩家</th><th class="text-right">得分</th></tr>`;
+            data.forEach((item, index) => {
+                const medals = ['🥇', '🥈', '🥉', '4', '5'];
+                html += `<tr class="rank-row h-10 ${index === 0 ? 'rank-1' : ''}">
+                    <td>${medals[index]}</td>
+                    <td>${item.name}</td>
+                    <td class="text-right font-bold text-indigo-600">${item.score}</td>
+                </tr>`;
+            });
+            html += `</table>`;
+            list.innerHTML = html;
+        }
 
         function triggerConfetti() {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#4f46e5', '#10b981', '#fbbf24']
-            });
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4f46e5', '#10b981', '#fbbf24'] });
         }
 
         function generateProblem() {
@@ -291,8 +283,7 @@
             if (isSpecial) {
                 const pairs = [[25, 4], [125, 8], [5, 2], [15, 6], [75, 4]];
                 const pair = pairs[Math.floor(Math.random() * pairs.length)];
-                const d1 = Math.floor(Math.random() * 3);
-                const d2 = Math.floor(Math.random() * 3) + 1;
+                const d1 = Math.floor(Math.random() * 3), d2 = Math.floor(Math.random() * 3) + 1;
                 top = (pair[0] / Math.pow(10, d1)).toString();
                 bottom = (pair[1] / Math.pow(10, d2)).toString();
             } else {
@@ -301,23 +292,20 @@
             }
             const sTop = top.replace('.', ''), sBottom = bottom.replace('.', '');
             const rawProd = (BigInt(sTop) * BigInt(sBottom)).toString();
-            const dTop = (top.split('.')[1] || "").length, dBottom = (bottom.split('.')[1] || "").length;
-            const correctPos = dTop + dBottom;
+            const correctPos = (top.split('.')[1] || "").length + (bottom.split('.')[1] || "").length;
             return { top, bottom, rawProd, correctPos };
         }
 
         function startGame(mode, val) {
-            gameMode = mode; gameActive = true; score = 0; totalAnswered = 0; roundCount = 0; combo = 0; maxCombo = 0; history = [];
+            gameMode = mode; gameActive = true; score = 0; totalAnswered = 0; roundCount = 0; combo = 0; maxCombo = 0;
             if (mode === 'timed') { 
                 timeLeft = val; maxRounds = 999; startTimer(); 
-                document.getElementById('mode-label').innerText = "限時連擊模式";
-                document.getElementById('score-label').innerText = "倒數計時";
+                document.getElementById('mode-label').innerText = "限時1分鐘挑戰";
                 document.getElementById('round-info').innerText = "Score: 0";
                 document.getElementById('combo-display').classList.remove('hidden');
             } else { 
                 maxRounds = val; 
-                document.getElementById('mode-label').innerText = "精準練習模式";
-                document.getElementById('score-label').innerText = "目前進度";
+                document.getElementById('mode-label').innerText = "精準練習";
                 document.getElementById('round-info').innerText = `1 / ${maxRounds}`;
                 document.getElementById('time-display').innerText = "-";
             }
@@ -348,20 +336,17 @@
         function renderProblem() {
             const area = document.getElementById('math-area');
             const p = currentProblem;
-            const minNeededLen = p.correctPos + 1;
-            const fullProdStr = p.rawProd.padStart(minNeededLen, '0');
+            const fullProdStr = p.rawProd.padStart(p.correctPos + 1, '0');
             const originalLen = p.rawProd.length;
 
             let html = `<div id="math-display" class="math-container animate__animated animate__zoomIn">`;
             html += `<div class="math-row">${renderDigitsWithDot(p.top)}</div>`;
             html += `<div class="math-row"><span class="operator">×</span>${renderDigitsWithDot(p.bottom)}</div>`;
-            html += `<div class="math-line"></div>`;
-            html += `<div class="math-row">`;
+            html += `<div class="math-line"></div><div class="math-row">`;
             const digits = fullProdStr.split('');
             digits.forEach((d, i) => {
                 const posFromRight = digits.length - i;
-                const isPad = (i < fullProdStr.length - originalLen);
-                html += `<div class="digit ${isPad ? 'zero-pad' : ''}">
+                html += `<div class="digit ${i < fullProdStr.length - originalLen ? 'zero-pad' : ''}">
                             ${posFromRight > 0 ? `<div class="dot-trigger" id="pos-${posFromRight}" onclick="handleDotClick(this, ${posFromRight})"></div>` : ''}
                             ${d}
                          </div>`;
@@ -373,11 +358,9 @@
         function renderDigitsWithDot(str) {
             const parts = str.split('.');
             let res = "";
-            const leftDigits = parts[0].split('');
-            leftDigits.forEach(d => { res += `<div class="digit">${d}</div>`; });
+            parts[0].split('').forEach(d => { res += `<div class="digit">${d}</div>`; });
             if (parts.length > 1) {
-                const rightDigits = parts[1].split('');
-                rightDigits.forEach((d, i) => {
+                parts[1].split('').forEach((d, i) => {
                     res += `<div class="digit">${i === 0 ? '<span class="static-dot">.</span>' : ''}${d}</div>`;
                 });
             }
@@ -386,88 +369,48 @@
 
         function handleDotClick(el, idx) {
             if (!gameActive || document.getElementById('feedback').classList.contains('locked')) return;
-            
             const isCorrect = idx === currentProblem.correctPos;
             const feedback = document.getElementById('feedback');
-            const mainCard = document.getElementById('main-card');
-            const mathDisplay = document.getElementById('math-display');
-            
             feedback.classList.add('locked');
-            totalAnswered++;
-
-            history.push({ prob: `${currentProblem.top} x ${currentProblem.bottom}`, correct: isCorrect });
 
             if (isCorrect) {
-                score++; combo++;
-                if (combo > maxCombo) maxCombo = combo;
-                
-                // 正確特效
+                score++; combo++; if (combo > maxCombo) maxCombo = combo;
                 if (el) el.classList.add('correct-dot');
-                triggerConfetti();
-                mainCard.classList.add('success-animate');
-                setTimeout(() => mainCard.classList.remove('success-animate'), 400);
-
-                if (combo >= 3) document.body.classList.add('combo-active');
-
-                if (gameMode === 'timed') {
-                    document.getElementById('round-info').innerText = `Score: ${score}`;
-                    const comboEl = document.getElementById('combo-display');
-                    comboEl.innerText = `${combo} Combo!`;
-                    comboEl.className = "text-2xl font-black text-amber-500 animate__animated animate__bounceIn";
-                }
-
-                feedback.innerText = combo > 1 ? `✨ 連擊 ${combo}！太強了 ✨` : "🎯 答對了！位置精確";
-                feedback.className = "text-center font-black text-emerald-500 animate__animated animate__heartBeat locked";
+                if (combo >= 3) { triggerConfetti(); document.body.classList.add('combo-active'); }
+                feedback.innerText = combo > 1 ? `✨ ${combo} COMBO！` : "🎯 正確！";
+                feedback.className = "correct animate__animated animate__bounceIn locked";
+                if (gameMode === 'timed') document.getElementById('round-info').innerText = `Score: ${score}`;
             } else {
-                combo = 0;
-                document.body.classList.remove('combo-active');
-                
-                // 錯誤特效
+                combo = 0; document.body.classList.remove('combo-active');
                 if (el) el.classList.add('wrong-dot');
-                mainCard.classList.add('error-shake');
-                setTimeout(() => mainCard.classList.remove('error-shake'), 400);
-
-                const correctEl = document.getElementById(`pos-${currentProblem.correctPos}`);
-                if (correctEl) correctEl.classList.add('correct-dot');
-                
-                if (gameMode === 'timed') {
-                    const comboEl = document.getElementById('combo-display');
-                    comboEl.innerText = "";
-                }
-                
-                feedback.innerText = `💡 差一點點！應有 ${currentProblem.correctPos} 位小數`;
-                feedback.className = "text-center font-black text-rose-500 animate__animated animate__shakeX locked";
+                document.getElementById(`pos-${currentProblem.correctPos}`).classList.add('correct-dot');
+                feedback.innerText = "💡 位置不對喔";
+                feedback.className = "wrong animate__animated animate__shakeX locked";
             }
 
-            setTimeout(() => { 
-                feedback.classList.remove('locked'); 
-                feedback.innerText = "";
-                nextRound(); 
-            }, 1200);
+            setTimeout(() => { feedback.innerText = ""; feedback.classList.remove('locked'); nextRound(); }, 1200);
         }
 
-        async function endGame() {
-            gameActive = false; 
-            clearInterval(timerInterval); 
+        function endGame() {
+            gameActive = false; clearInterval(timerInterval);
             document.body.classList.remove('combo-active');
-            showScreen('result-screen');
+            
             document.getElementById('final-score').innerText = score;
             document.getElementById('final-combo').innerText = maxCombo;
             
-            if (score > 3) triggerConfetti();
+            showScreen('result-screen');
+            
+            if (gameMode === 'timed') {
+                document.getElementById('name-input-container').classList.remove('hidden');
+            } else {
+                displayLeaderboard();
+            }
             analyzePerformanceWithGemini();
         }
 
         async function analyzePerformanceWithGemini() {
-            const aiLoading = document.getElementById('ai-loading');
             const aiText = document.getElementById('ai-text');
-            aiLoading.style.display = 'block';
-            aiText.innerText = '';
-
-            const stats = `得分: ${score}, 題數: ${totalAnswered}, 連擊: ${maxCombo}`;
-            const prompt = `你是一位幽默活潑的國小數學專家。請根據玩家成績給予短評。
-            成績：${stats}。如果是高分就誇獎，低分就給一個有趣的小技巧。50字內，繁體中文。`;
-
+            const prompt = `玩家小數乘法得分: ${score}, 連擊: ${maxCombo}。請給予簡短鼓勵與建議，廣東話口吻，50字內。`;
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
@@ -475,36 +418,26 @@
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "表現得很努力，再接再厲喔！";
-                
-                aiLoading.style.display = 'none';
-                aiText.innerText = text;
+                aiText.innerText = data.candidates[0].content.parts[0].text;
                 document.getElementById('ai-tts-btn').classList.remove('hidden');
-            } catch (error) {
-                aiLoading.style.display = 'none';
-                aiText.innerText = "你是這場挑戰的主角，下一次一定會更好！";
-            }
+            } catch (e) { aiText.innerText = "好棒的嘗試！再接再厲！"; }
         }
 
         async function speakAI() {
             const text = document.getElementById('ai-text').innerText;
-            if (!text) return;
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `請用親切開朗的聲音以廣東話讀出：${text}` }] }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
-                        }
+                        contents: [{ parts: [{ text: `用廣東話讀出：${text}` }] }],
+                        generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } }
                     })
                 });
                 const result = await response.json();
                 const pcmData = result.candidates[0].content.parts[0].inlineData.data;
                 playPCM(pcmData);
-            } catch (err) {}
+            } catch (e) {}
         }
 
         function playPCM(base64Data) {
@@ -512,26 +445,18 @@
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
             const blob = new Blob([createWavHeader(bytes.length, 24000), bytes], { type: 'audio/wav' });
-            const audio = new Audio(URL.createObjectURL(blob));
-            audio.play();
+            new Audio(URL.createObjectURL(blob)).play();
         }
 
         function createWavHeader(dataLength, sampleRate) {
             const buffer = new ArrayBuffer(44);
             const view = new DataView(buffer);
-            view.setUint32(0, 0x52494646, false); 
-            view.setUint32(4, 36 + dataLength, true);
-            view.setUint32(8, 0x57415645, false); 
-            view.setUint32(12, 0x666d7420, false); 
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); 
-            view.setUint16(22, 1, true); 
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            view.setUint32(36, 0x64617461, false); 
-            view.setUint32(40, dataLength, true);
+            view.setUint32(0, 0x52494646, false); view.setUint32(4, 36 + dataLength, true);
+            view.setUint32(8, 0x57415645, false); view.setUint32(12, 0x666d7420, false);
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+            view.setUint32(36, 0x64617461, false); view.setUint32(40, dataLength, true);
             return buffer;
         }
 
