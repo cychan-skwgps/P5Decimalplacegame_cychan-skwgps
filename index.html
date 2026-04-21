@@ -259,6 +259,7 @@
                 <div class="text-right">
                     <p id="score-label" class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
                     <p id="time-display" class="font-mono text-3xl font-black text-indigo-600">60.0s</p>
+                    <div id="lives-display" class="text-lg mt-1 hidden text-red-500 tracking-widest">❤️❤️❤️❤️❤️</div>
                 </div>
             </div>
 
@@ -323,7 +324,7 @@
     <script>
         const apiKey = ""; 
         let gameMode = 'normal', timeLeft = 60, score = 0, roundCount = 0, maxRounds = 5;
-        let combo = 0, maxCombo = 0, currentProblem = null, timerInterval = null, gameActive = false;
+        let combo = 0, maxCombo = 0, lives = 5, currentProblem = null, timerInterval = null, gameActive = false;
 
         // 暖色系組合庫
         const warmColors = [
@@ -395,20 +396,27 @@
         }
 
         function startGame(mode, val) {
-            gameMode = mode; gameActive = true; score = 0; roundCount = 0; combo = 0; maxCombo = 0;
+            gameMode = mode; gameActive = true; score = 0; roundCount = 0; combo = 0; maxCombo = 0; lives = 5;
+            
             if (mode === 'timed') { 
                 timeLeft = val; startTimer(); 
                 document.getElementById('mode-label').innerText = "限時 1 分鐘挑戰";
                 document.getElementById('round-info').innerText = "Score: 0";
                 document.getElementById('combo-display').classList.remove('hidden');
                 document.getElementById('combo-display').innerText = "";
+                
+                // 顯示生命值
+                document.getElementById('lives-display').classList.remove('hidden');
+                document.getElementById('lives-display').innerText = '❤️'.repeat(lives) + '🤍'.repeat(5 - lives);
             } else { 
                 maxRounds = val; 
                 document.getElementById('mode-label').innerText = "精準練習";
                 document.getElementById('round-info').innerText = `1 / ${maxRounds}`;
                 document.getElementById('time-display').innerText = "-";
                 document.getElementById('combo-display').classList.add('hidden');
+                document.getElementById('lives-display').classList.add('hidden');
             }
+            
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
             document.getElementById('game-timer-container').classList.toggle('hidden', mode !== 'timed');
@@ -489,7 +497,23 @@
                 if (target) target.classList.add('correct-dot');
                 feedback.innerText = `💡 應是 ${currentProblem.correctPos} 位小數`;
                 feedback.className = "wrong animate__animated animate__shakeX locked";
-                if (gameMode === 'timed') document.getElementById('combo-display').innerText = "";
+                
+                if (gameMode === 'timed') {
+                    document.getElementById('combo-display').innerText = "";
+                    lives--;
+                    document.getElementById('lives-display').innerText = '❤️'.repeat(lives) + '🤍'.repeat(5 - lives);
+                    
+                    if (lives <= 0) {
+                        clearInterval(timerInterval); // 提早停止計時器
+                        setTimeout(() => { 
+                            feedback.innerText = ""; 
+                            feedback.className = "animate__animated"; 
+                            feedback.classList.remove('locked'); 
+                            endGame(); 
+                        }, 1200);
+                        return; // 生命值為 0 直接結算，跳過下一題
+                    }
+                }
             }
             setTimeout(() => { feedback.innerText = ""; feedback.className = "animate__animated"; feedback.classList.remove('locked'); nextRound(); }, 1200);
         }
