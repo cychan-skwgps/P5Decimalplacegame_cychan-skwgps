@@ -378,22 +378,63 @@
         function triggerConfetti() { confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } }); }
 
         function generateProblem() {
-            const isSpecial = Math.random() < 0.3;
-            let top, bottom;
-            if (isSpecial) {
-                const pairs = [[25, 4], [125, 8], [5, 2], [75, 4]];
-                const pair = pairs[Math.floor(Math.random() * pairs.length)];
-                top = (pair[0] / Math.pow(10, Math.floor(Math.random() * 3))).toString();
-                bottom = (pair[1] / Math.pow(10, Math.floor(Math.random() * 2) + 1)).toString();
-            } else {
-                top = (Math.floor(Math.random() * 900 + 11) / 100).toString();
-                bottom = (Math.floor(Math.random() * 91 + 2) / 10).toString();
-            }
-            const sTop = top.replace('.', ''), sBottom = bottom.replace('.', '');
-            const rawProd = (BigInt(sTop) * BigInt(sBottom)).toString();
-            const correctPos = (top.split('.')[1] || "").length + (bottom.split('.')[1] || "").length;
-            return { top, bottom, rawProd, correctPos };
+    // 1. 強制平均分配目標小數位數 (1, 2, 或 3 位)，各佔約 33.3%
+    const targetDecimals = Math.floor(Math.random() * 3) + 1;
+    
+    // 2. 決定被乘數 (top) 與乘數 (bottom) 的小數位數如何分配
+    let decTop = 0, decBot = 0;
+    if (targetDecimals === 1) {
+        if (Math.random() < 0.5) { decTop = 1; decBot = 0; } 
+        else { decTop = 0; decBot = 1; }
+    } else if (targetDecimals === 2) {
+        const rand = Math.random();
+        if (rand < 0.33) { decTop = 2; decBot = 0; }
+        else if (rand < 0.66) { decTop = 0; decBot = 2; }
+        else { decTop = 1; decBot = 1; }
+    } else {
+        if (Math.random() < 0.5) { decTop = 2; decBot = 1; } 
+        else { decTop = 1; decBot = 2; }
+    }
+
+    // 3. 產生基底的整數數字
+    let intTop, intBot;
+    
+    const isSpecial = Math.random() < 0.2;
+    if (isSpecial) {
+        // 特殊題型：測試乘積尾數有 0 的狀況
+        const pairs = [[25, 4], [125, 8], [5, 2], [75, 4], [15, 6], [45, 2], [12, 5]];
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        intTop = pair[0];
+        intBot = pair[1];
+    } else {
+        // 一般題型：拿掉過濾條件，允許產生 250、120 等數字
+        // 這樣轉換後就會自然出現 2.50 或 1.20 等適合直式點位練習的題目
+        intTop = Math.floor(Math.random() * 900) + 11; // 11 ~ 910
+        intBot = Math.floor(Math.random() * 90) + 2;   // 2 ~ 91
+    }
+
+    // 4. 小數點插入輔助函式
+    const insertDecimal = (numInt, decimals) => {
+        let s = numInt.toString();
+        if (decimals === 0) return s;
+        while (s.length <= decimals) {
+            s = '0' + s;
         }
+        const splitIndex = s.length - decimals;
+        return s.substring(0, splitIndex) + '.' + s.substring(splitIndex);
+    };
+
+    const top = insertDecimal(intTop, decTop);
+    const bottom = insertDecimal(intBot, decBot);
+
+    // 5. 計算結果與正確的小數點位置
+    const sTop = top.replace('.', '');
+    const sBottom = bottom.replace('.', '');
+    const rawProd = (BigInt(sTop) * BigInt(sBottom)).toString();
+    const correctPos = targetDecimals;
+
+    return { top, bottom, rawProd, correctPos };
+}
 
         function startGame(mode, val) {
             gameMode = mode; gameActive = true; score = 0; roundCount = 0; combo = 0; maxCombo = 0; lives = 5;
